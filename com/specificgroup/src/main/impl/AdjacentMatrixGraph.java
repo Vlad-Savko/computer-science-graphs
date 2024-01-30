@@ -1,8 +1,13 @@
 package main.impl;
 
 import main.Graph;
+import main.SearchType;
+import main.StackAndQueueAdapter;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.StringJoiner;
 
 public class AdjacentMatrixGraph<T> implements Graph<T> {
     private List<T> values;
@@ -15,63 +20,12 @@ public class AdjacentMatrixGraph<T> implements Graph<T> {
 
     @Override
     public void bfs(T sourceVertex) {
-        List<T> visited = new LinkedList<>();
-        Queue<T> queue = new LinkedList<>(List.of(sourceVertex));
-        StringBuilder sb = new StringBuilder();
-
-        while (!queue.isEmpty()) {
-            T currVertex = queue.poll();
-            if (!currVertex.equals(sourceVertex)) {
-                List<T> adjacents = findAdjacents(currVertex);
-
-                lookForSourceVertex(adjacents, visited, sourceVertex, currVertex, sb);
-            }
-            if (!visited.contains(currVertex)) {
-                visited.add(currVertex);
-            }
-
-            for (T currVertexAdjacent : findAdjacents(currVertex)) {
-                if (!visited.contains(currVertexAdjacent) && !queue.contains(currVertexAdjacent)) {
-                    queue.add(currVertexAdjacent);
-                }
-            }
-            if (!currVertex.equals(sourceVertex)) {
-                System.out.println(sb);
-                sb = new StringBuilder();
-            }
-        }
+        xfs(sourceVertex, SearchType.BREADTH);
     }
 
     @Override
     public void dfs(T sourceVertex) {
-        List<T> visited = new LinkedList<>();
-        Stack<T> stack = new Stack<>();
-        StringBuilder sb = new StringBuilder();
-
-        stack.push(sourceVertex);
-
-        while (!stack.isEmpty()) {
-            T currVertex = stack.pop();
-            if (!currVertex.equals(sourceVertex)) {
-                List<T> adjacents = findAdjacents(currVertex);
-
-                lookForSourceVertex(adjacents, visited, sourceVertex, currVertex, sb);
-            }
-            if (!visited.contains(currVertex)) {
-                visited.add(currVertex);
-            }
-
-            for (T currVertexAdjacent : findAdjacents(currVertex)) {
-                if (!visited.contains(currVertexAdjacent) && !stack.contains(currVertexAdjacent)) {
-                    stack.push(currVertexAdjacent);
-                }
-            }
-            if (!currVertex.equals(sourceVertex)) {
-                System.out.println(sb);
-                sb = new StringBuilder();
-            }
-        }
-
+        xfs(sourceVertex, SearchType.DEPTH);
     }
 
     @Override
@@ -208,5 +162,37 @@ public class AdjacentMatrixGraph<T> implements Graph<T> {
             }
         }
         return adjacents;
+    }
+
+    private void xfs(final T sourceVertex, final SearchType type) {
+        List<T> visited = new LinkedList<>();
+        StackAndQueueAdapter<T> collection = switch (type) {
+            case DEPTH -> new StackAdapter<>();
+            case BREADTH -> new QueueAdapter<>();
+        };
+        collection.addElement(sourceVertex);
+        StringBuilder sb = new StringBuilder();
+
+        while (!collection.isEmpty()) {
+            T currVertex = collection.getElement();
+            if (!currVertex.equals(sourceVertex)) {
+                List<T> adjacents = findAdjacents(currVertex);
+
+                lookForSourceVertex(adjacents, visited, sourceVertex, currVertex, sb);
+            }
+            if (!visited.contains(currVertex)) {
+                visited.add(currVertex);
+            }
+
+            for (T currVertexAdjacent : findAdjacents(currVertex)) {
+                if (!visited.contains(currVertexAdjacent) && !collection.contains(currVertexAdjacent)) {
+                    collection.addElement(currVertexAdjacent);
+                }
+            }
+            if (!currVertex.equals(sourceVertex)) {
+                System.out.println(sb);
+                sb = new StringBuilder();
+            }
+        }
     }
 }

@@ -1,12 +1,11 @@
 package main;
 
 import main.impl.AdjacentListGraph;
-import main.impl.AdjacentMatrixGraph;
 
 public class Main {
     public static void main(String[] args) {
-//        Graph<Integer> graph = new AdjacentListGraph<>();
-        Graph<Integer> graph = new AdjacentMatrixGraph<>();
+        Graph<Integer> graph = new AdjacentListGraph<>();
+//        Graph<Integer> graph = new AdjacentMatrixGraph<>();
 
         graph.addVertex(1);
         graph.addVertex(2);
